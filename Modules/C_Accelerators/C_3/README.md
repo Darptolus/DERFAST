@@ -1,0 +1,1 @@
+# C.3. Basic accelerators programming concepts (offloading)

@@ -1,0 +1,1 @@
+# A.5. Hardware interoperability, bits and pieces
