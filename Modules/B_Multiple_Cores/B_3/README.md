@@ -87,3 +87,7 @@ ps -eo nlwp | tail -n +2 | awk '{ num_threads += $1 } END { print num_threads }'
 ```
 929
 ```
+
+
+<!-- hardware thread vs software thread -->
+<!-- process vs thread -->

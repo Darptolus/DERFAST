@@ -52,6 +52,8 @@ Optional:
 ## Node Installation
 **Parabuntu 2019**
 
+[Linux](#linux) | [Mac](#mac) | [Windows](#windows)
+
 ### 1. Create Booteable micro-SD card
 
 The SD card needs to be loaded with the necessary files to support hardware management and software resources that provides common services for computer programs, also known as the Operating System (OS).
@@ -60,13 +62,14 @@ The SD card needs to be loaded with the necessary files to support hardware mana
 
 https://github.com/parallella/parabuntu/releases/tag/parabuntu-2019.1-beta1
 
-- Open a terminal (A)
+- Open a terminal
 
 `Ctrl+Alt+T`
+
 - Change directory to where the ISO file is located
 
 ```
-cd <Download_Directory>
+cd <Downloads_Directory>
 ```
 
 - Check current devices
@@ -74,19 +77,35 @@ cd <Download_Directory>
 ```
 lsblk
 ```
+```
+df -h
+```
 
 - Insert SD card into SD reader and check the name of the SD card (usually starts with mmcblk0 or sdb)
 
 ```
 lsblk
 ```
+```
+df -h
+```
+
+- Unmount the SD card
+
+```
+umount <sd-partition-path>
+```
 
 - Write the image to the SD card, where <d_name> is the SD card name
 
 ```
-sudo dd bs=4M if=<parabuntu_filename>.img of=/dev/<d_name> bs=64k status=progress
+sudo dd bs=4M if=<parabuntu_filename>.img of=/dev/<d_name> status=progress
 ```
 
+- Make sure all writes to the SD card have completed
+```
+sync
+```
 > *Note: Check the version of the board (z7010/z7020) to use the correct ISO*
 
 - Resize partition using gparted to use all available space
@@ -126,10 +145,10 @@ cd ~/DERFAST/Modules/A_Single_Core/A_2
 
 > *Note: ~ expands to the home directory*
 
-In terminal (B), copy the directory `game-of-life` in `DERFAST/Modules/A_Single_Core/A_2` to the board using scp.
+In terminal (B), copy the directory `game-of-life-v2` in `DERFAST/Modules/A_Single_Core/A_2` to the board using scp.
 
 ```
-scp -r game-of-life parallella@NOPA08:/home/parallella
+scp -r game-of-life-v2 parallella@[default_ip]:/home/parallella
 ```
 
 > *Syntax: scp [file_name] [remoteuser]@[remotehost]:[/remote/directory]*
@@ -137,11 +156,11 @@ scp -r game-of-life parallella@NOPA08:/home/parallella
 Run epiphany example to validate correct installation 
 
 ```
-cd parallella-examples/game-of-life/
+cd game-of-life-v2
 ```
 
 ```
-./build.sh & ./main.elf 3
+./build.sh; ./main.elf 3
 ```
 
 The expected outcome may differ every time! Here is an example :
@@ -171,27 +190,33 @@ X	X	X	X	X	X
 
 > Note: It is also possible to get more examples with the github repository from Parallella using git clone
 
+If the co-processor is not working, try reinstalling the OS in the SD card [Step 1.](#1-create-booteable-micro-sd-card)
+
 ### 7. Setup Board Hostname
 
 The board's hostname is a combination of alphanumeric characters used to identify each board. DEMAC follows a namescheme where each board is named NOPA##, where ## is a unique 2-digit ID. For example, board 01 will be NOPA01.
 
 #### Single-Node
 
-- Edit the file `/etc/hostname`
+Edit the file `/etc/hostname`
 
 ```
 sudo vim /etc/hostname
+```
+Remove the default name "parallella" and replace it with:
+```
+NOPA01
 ```
 
 #### Multi-Node 
 
 In a multi-node system, each node needs a unique hostname. Choose a naming scheme that aligns with the objective of the project. For example, in the 24-board version of DEMAC, boards are named NOPA01-NOPA24. Learn more about multi-node setup [here](../../D_Multiple_Nodes/D_2/README.md).
 
-- Edit the file `/etc/hostname`
+Remove the default name "parallella" and replace it with (## is the board ID number):
+```
+NOPA##
+```
 
-```
-sudo vim /etc/hostname
-```
 
 ### 8. Setup IP
 

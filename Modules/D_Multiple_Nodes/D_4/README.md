@@ -5,27 +5,32 @@
 
 
 ## Table of content
-1. What is MPI?
-2. How to run a "Hello World" example
-3. 
+0. What is MPI?
+1. MPI Basics
+2. Collective Communications
+3. Blocking vs Non-blocking
+4. Stencil Computations
 
+## 0. What is MPI?
 MPI, which stands for Message Passing Interface, is a standardized and portable message-passing system designed for parallel computing. It allows multiple processes to communicate with each other, typically in a distributed computing environment such as a cluster or a network of computers.
 
 Some of the elements defined by MPI that allow for distributed execution of programs are:
 
-1. **Process Creation**: MPI programs typically start with a single process, which then spawns multiple processes to perform parallel computations. Each process has its own address space and can run on a different processor or node within a distributed system.
+- **Process Creation**: MPI programs typically start with a single process, which then spawns multiple processes to perform parallel computations. Each process has its own address space and can run on a different processor or node within a distributed system.
 
-2. **Message Passing**: MPI enables communication between processes through message passing. Processes can send and receive messages to and from each other using various communication operations provided by the MPI library.
+- **Message Passing**: MPI enables communication between processes through message passing. Processes can send and receive messages to and from each other using various communication operations provided by the MPI library.
 
-3. **Data Distribution**: MPI allows for the distribution of data across multiple processes. Each process can work on its own portion of the data, and communication operations are used to exchange data between processes when necessary.
+- **Data Distribution**: MPI allows for the distribution of data across multiple processes. Each process can work on its own portion of the data, and communication operations are used to exchange data between processes when necessary.
 
-4. **Synchronization**: MPI provides mechanisms for synchronizing the execution of processes. This ensures that processes coordinate their activities and avoid conflicts when accessing shared resources or data.
+- **Synchronization**: MPI provides mechanisms for synchronizing the execution of processes. This ensures that processes coordinate their activities and avoid conflicts when accessing shared resources or data.
 
-5. **Collective Operations**: MPI supports collective operations, which involve communication and coordination among multiple processes. Examples include collective communication operations like broadcast, scatter, gather, and reduce, which enable efficient data exchange and computation across all processes.
+- **Collective Operations**: MPI supports collective operations, which involve communication and coordination among multiple processes. Examples include collective communication operations like broadcast, scatter, gather, and reduce, which enable efficient data exchange and computation across all processes.
 
 MPI is widely used in scientific and engineering applications that require high-performance computing and parallel processing, such as weather modeling, computational fluid dynamics, molecular dynamics simulations, and more. It provides a flexible and efficient way to develop parallel programs that can run on a variety of computing architectures, from multi-core processors to large-scale clusters.
 
-## Hello Worlds!
+## 1. MPI Basics
+
+### Hello Worlds!
 
 Below is a simple "Hello, World!" example written in C using MPI. This program will run on multiple processes, each printing out its own "Hello, World!" message along with its rank (identifier) within the MPI communicator.
 
@@ -81,7 +86,9 @@ Hello from process 3 of 4
 
 Each line represents the "Hello, World!" message printed by a different process, along with its rank within the MPI communicator. The order of the output may vary because MPI processes may execute concurrently.
 
-## Send and Receive - Speaking and Listening 
+
+
+## Send and Receive - Point-to-Point
 
 Below is an example of MPI Send and Receive operations in C, along with instructions on how to compile and run the program using OpenMPI.
 
@@ -143,3 +150,7 @@ Process 1 received message: 42
 ```
 
 The message is sent from process 0 to process 1 using MPI_Send and MPI_Recv operations, and each process prints out the message it sent or received.
+
+## 2. Collective Communications
+## 3. Blocking vs Non-blocking
+## 4. Stencil Computations
