@@ -253,7 +253,7 @@ network:
 sudo netplan apply
 ```
 
-> Note: The pocedure to set up an static IP might differ for different linux versions or distributions. 
+> Note: The procedure to set up an static IP might differ for different linux versions or distributions. 
 
 ### 9. Reboot
  

@@ -88,6 +88,14 @@ ps -eo nlwp | tail -n +2 | awk '{ num_threads += $1 } END { print num_threads }'
 929
 ```
 
+## 0. OpenMP Installation
+```
+sudo apt-get install libomp-dev -y
+```
+Check OpenMP
+```
+echo |cpp -fopenmp -dM |grep -i open
+```
 
 <!-- hardware thread vs software thread -->
 <!-- process vs thread -->
