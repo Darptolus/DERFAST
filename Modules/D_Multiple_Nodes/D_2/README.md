@@ -222,8 +222,71 @@ sudo apt-get update
 ```
 sudo apt-get upgrade -y
 ```
+#### 15.12. Copy ssh keys ("paswordless" ssh)
 
-#### 15.12. Install Ansible
+- Make temporary folder in one of the nodes
+```
+mkdir tmp_ssh
+cd tmp_ssh
+ssh-keygen -f ./id_rsa 
+```
+
+- Press Enter twice for empty passphrase
+
+- Make this new key an authorized key
+```
+cp id_rsa.pub authorized_keys
+```
+
+- Add all NOPAs to the known hosts
+```
+for i in `seq 0 24`; do j=$(echo $i | awk '{printf "%02d\n", $0}'); ssh-keyscan NOPA$j >> known_hosts; done
+cd ..
+```
+
+
+- Make .ssh directory on every node
+```
+mkdir .ssh
+```
+
+- Copy keys for every node using reverse order, assuming this configuration will occur from NOPA01
+```
+for i in `seq 24 -1 1`; do j=$(echo $i | awk '{printf "%02d\n", $0}'); echo NOPA$j; scp tmp_ssh/* NOPA$j:.ssh/; done
+```
+Reverse order avoids overwriting the ssh in the current node first
+
+
+> *Note: The following procedure is only necessary if a new node is added after the previous procedure
+
+- In case a node needs to be added or installed from scratch.
+
+This can be used when a single node has been re-installed. We need to obtain the new node’s host key, add it into the current known hosts to avoid getting the  typical ssh question. Then give the key to the new node, and give the information of the hosts keys to all the nodes. 
+
+
+In new node:
+
+```
+cd /home/parallella
+mkdir .ssh
+```
+
+In existing node, set the env variable NEW_NODE accordingly: 
+
+```
+export NEW_NODE=NOPA## 
+ssh-keyscan $NEW_NODE >> ~/.ssh/known_hosts
+scp ~/.ssh/* $NEW_NODE:.ssh/
+for i in `seq 24 -1 0`; do j=$(echo $i | awk '{printf "%02d\n", $0}'); scp ~/.ssh/known_hosts NOPA$j:.ssh/known_hosts; done
+```
+
+Note: If the node has been added before is necessary to remove the key first:
+```
+ssh-keygen -f "/home/parallella/.ssh/known_hosts" -R "nopa<##>"
+ssh-keygen -R 192.168.10.1<##>
+```
+
+#### 15.13. Install Ansible
 
 Ansible is an open source IT automation engine that automates provisioning, configuration management, application deployment, orchestration, and many other IT processes.
 
@@ -248,7 +311,7 @@ NOPA03
 NOPA04
 ```
 
-#### 15.13. Install nsf
+#### 15.14. Install and configure NSF (HOST)
 
 NFS (Network File System) allows you to 'share' a directory located on one networked computer with other computers/devices on that network. The computer where directory located is called the server and computers or devices connecting to that server are called clients. Clients usually 'mount' the shared directory to make it a part of their own directory structure.
 
@@ -265,7 +328,7 @@ sudo chmod 777 DEMAC_nfs/
 ```
 
 ```
-sudo apt-get install nfs-kernel-server
+sudo apt-get install nfs-kernel-server -y
 ```
 
 ```
@@ -293,6 +356,7 @@ service nfs-kernel-server restart
 sudo exportfs -v
 ```
 
+#### 15.15. Install and configure NSF (CLIENTS)
 - In the clients run the following commands:
 
 ```
@@ -304,9 +368,10 @@ sudo apt-get install rpcbind nfs-common -y
 ```
 
 ```
-sudo apt-get install autofs
+sudo apt-get install autofs -y
 ```
 
+- Edit '/etc/auto.master'
 ```
 sudo vim /etc/auto.master 
 ```
@@ -314,9 +379,10 @@ sudo vim /etc/auto.master
 - Comment last line and add:
 
 ```
-/-	/etc/auto.mount
+/-  /etc/auto.mount
 ```
 
+- Edit '/etc/auto.mount'
 ```
 sudo vim /etc/auto.mount
 ```
@@ -337,6 +403,132 @@ sudo service autofs start
 sudo reboot -f
 ```
 
+- Test nfs
+
+#### 15.16. Install Slurm
+
+##### 15.16.1 Host
+
+Arch
+```
+sudo pacman -Syu slurm-llnl
+```
+
+
+##### 15.16.2 Client
+
+- Install Munge
+```
+sudo apt-get install build-essential munge libmunge2 libmunge-dev -y
+```
+
+- Install Slurm
+```
+sudo apt-get install slurm-wlm -y
+```
+
+
+#### 15.17. Install MPI
+<!-- Install MPI (Warning, can take hours) -->
+```
+sudo apt-get install build-essential openssh-server sshpass libpmi0 libpmi0-dev libpmi2-0 libpmi2-0-dev libpmix2 hwloc numactl libc6-dev gfortran -y
+sudo apt install mpich -y
+```
+
+<!-- ``` -->
+<!-- mkdir mpich; cd mpich -->
+<!-- ``` -->
+<!-- mkdir openmpi; cd openmpi -->
+
+<!-- - Download tar
+```
+wget https://www.mpich.org/static/downloads/4.2.3/mpich-4.2.3.tar.gz
+``` -->
+<!-- https://www.open-mpi.org/software/ompi/v4.0/
+wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.7.tar.gz -->
+
+<!-- Extract
+```
+tar xzfv mpich-4.2.3.tar.gz
+cd mpich-4.2.3
+``` -->
+
+<!-- gunzip -c openmpi-4.0.7.tar.gz | tar xf - -->
+
+<!-- cd openmpi-4.0.7 -->
+
+<!-- ``` -->
+<!-- export CFLAGS="-I/opt/slurm/include"
+export LDFLAGS="-L/opt/slurm/lib"
+
+
+./configure --prefix=/usr/local  -->
+
+<!-- ``` -->
+<!-- ./configure --prefix=/usr/local --with-pmi=slurm --with-pm=no --with-slurm=/usr/local -->
+<!-- ./configure --prefix=/usr/local -->
+<!-- ``` -->
+<!-- make -j 2 all -->
+<!-- make install -->
+<!-- ``` -->
+
+<!-- sudo make -j all install -->
+
+<!-- Copy to others -->
+<!-- scp openmpi-4.0.4.tar.gz nopa##:~/tmp -->
+
+#### 15.17. Install Jupyter Hub
+
+- Host
+
+Ubuntu
+```
+sudo apt-get install python3 python3-dev git curl -y
+```
+
+Arch
+```
+sudo pacman -Sy python3 git curl python-pycurl
+mkdir Software
+cd Software
+
+git clone --depth=1 https://aur.archlinux.org/nodejs-configurable-http-proxy.git
+cd nodejs-configurable-http-proxy
+makepkg -si
+
+cd ..
+git clone --depth=1 https://aur.archlinux.org/python-certipy.git
+cd python-certipy
+makepkg -si
+
+cd ..
+git clone --depth=1 
+cd
+makepkg -si
+
+cd ..
+git clone --depth=1 https://aur.archlinux.org/python-pamela.git
+cd python-pamela
+makepkg -si
+
+cd ..
+sudo pacman -Syu python-alembic python-oauthlib python-pydantic python-sqlalchemy
+
+git clone --depth=1 https://aur.archlinux.org/jupyterhub.git
+cd jupyterhub
+makepkg -si
+
+git clone --depth=1 https://github.com/jupyterlab/jupyterlab
+cd jupyterlab
+makepkg -si
+
+systemctl start jupyterhub.service
+
+systemctl enable jupyterhub.service
+
+```
+
+
 ### 16. Repeat step 13 until all 4 nodes have been installed
 
 <!-- [Node Installation](#13-perform-node-installation-x4) -->
@@ -349,3 +541,42 @@ sudo reboot -f
 ### 17. Check the connection and status of all the boards
 
 ssh parallella@NOPA##
+
+#### 17.1. Test C++ compiler (G++)
+- Run a "Hello World" example
+
+```
+cd ~/tests/gpp
+g++ hello_world.cpp -o hello_world
+./hello_world
+```
+
+- Go to Laboratory 0 [A.3. Basic programming concepts (variables, loops, conditionals)](../../A_Single_Core/A_3/README.md)
+
+
+#### 17.1. Test OpenMP
+
+- Run a "Hello World" example
+
+```
+cd ~/tests/openmp
+g++ -fopenmp hello_world_openmp.cpp -o hello_world_openmp
+./hello_world_openmp
+```
+
+- Go to Laboratory 0 [B.6. Parallel programming models (OpenMP)](../../B_Multiple_Cores/B_6//README.md)
+
+
+#### 17.2. Test MPI (MPICH)
+
+- Run a "Hello World" example
+
+```
+cd ~/tests/mpich
+mpic++ hello_world_mpi.cpp -o hello_world_mpi
+cp hello_world_mpi ~/DEMAC_nfs/
+cd ~/DEMAC_nfs/
+mpirun --host nopa01,nopa02,nopa03,nopa04 hello_world_mpi
+```
+
+- Go to Laboratory 0 [D.4. Message Passing Interface (MPI)](../../D_Multiple_Nodes/D_4/README.md)

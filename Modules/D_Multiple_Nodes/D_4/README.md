@@ -1,7 +1,10 @@
 # D.4. Message Passing Interface (MPI)
 
-The message is sent from process 0 to process 1 using MPI_Send and MPI_Recv operations, and each process prints out the message it sent or received.
+### [Laboratory 0](Laboratory_0/D_4_Lab_0.ipynb)
+### [Laboratory 1](MPI_I.ipynb)
+### [Laboratory 2](MPI_II.ipynb)
+### [Laboratory 3](MPI_III.ipynb)
 
-## 2. Collective Communications
+<!-- ## 2. Collective Communications
 ## 3. Blocking vs Non-blocking
-## 4. Stencil Computations
+## 4. Stencil Computations -->

@@ -139,6 +139,8 @@ If this command is successful, it will attempt to login to the board and start a
 
 Open a new terminal (B) and go to the `DERFAST/Modules/A_Single_Core/A_2` directory, if it is located in home use:
 
+<!-- ToDo: Add custom home dir path $DERFAST_HOMEDIR -->
+
 ```
 cd ~/DERFAST/Modules/A_Single_Core/A_2
 ```
@@ -148,8 +150,10 @@ cd ~/DERFAST/Modules/A_Single_Core/A_2
 In terminal (B), copy the directory `game-of-life-v2` in `DERFAST/Modules/A_Single_Core/A_2` to the board using scp.
 
 ```
-scp -r game-of-life-v2 parallella@[default_ip]:/home/parallella
+scp -r tests parallella@[default_ip]:/home/parallella/tests
 ```
+<!-- scp -r game-of-life-v2 parallella@[default_ip]:/home/parallella -->
+
 
 > *Syntax: scp [file_name] [remoteuser]@[remotehost]:[/remote/directory]*
 
@@ -192,6 +196,11 @@ X	X	X	X	X	X
 
 If the co-processor is not working, try reinstalling the OS in the SD card [Step 1.](#1-create-booteable-micro-sd-card)
 
+<!-- 
+Copy all
+for i in `seq 24 -1 1`; do j=$(echo $i | awk '{printf "%02d\n", $0}'); scp -r game-of-life-v2 NOPA$j:~/tests; done 
+-->
+
 ### 7. Setup Board Hostname
 
 The board's hostname is a combination of alphanumeric characters used to identify each board. DEMAC follows a namescheme where each board is named NOPA##, where ## is a unique 2-digit ID. For example, board 01 will be NOPA01.
@@ -222,11 +231,13 @@ NOPA##
 
 There are two options to set a fixed IP for the board in the network. 
 
-#### Setup IP in the router interface
+#### 8.1 Setup IP in the router interface
 
-Log into the router configuration interface, each router's interface might be different and provide support for different features. Using this interface you can set up a static IP 
+Log into the router configuration interface, each router's interface might be different and provide support for different features. Using this interface you can set up a static IP (skip 8.2)
 
-#### Setup Static IP in the board
+#### 8.2 Setup Static IP in the board
+
+- Check your IP range
 
 - Edit `/etc/netplan/*.yaml`
 
@@ -240,12 +251,12 @@ The contents of the file should look like this, replace ## for the board's ID.
 network:
  ethernets:
   eth0:
-      	addresses: [192.168.10.1##/24]
-      	gateway4: 192.168.10.1
-      	dhcp4: true
-      	optional: true
-      	nameservers:
-              	addresses: [8.8.8.8,8.8.4.4]
+    addresses: [192.168.10.1##/24]
+    gateway4: 192.168.10.1
+    dhcp4: true
+    optional: true
+    nameservers:
+      addresses: [8.8.8.8,8.8.4.4]
  version: 2
  ```
 
